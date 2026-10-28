@@ -12,7 +12,10 @@ npm-debug.log
 .idea/
 .dccache
 
-
 # Tessl managed plugin/install artifacts; tessl.json is the source of truth.
-.tessl/
+.tessl/*
+!.tessl/cloud-launch-setup.sh
 .agents/
+
+# Local runtime harness output
+runtime/*.log

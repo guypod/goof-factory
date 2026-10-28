@@ -13,7 +13,8 @@
     "build": "browserify -r jquery > public/js/bundle.js",
     "cleanup": "mongo express-todo --eval 'db.todos.remove({});'",
     "test": "snyk test",
-    "test:factory-manifest": "node scripts/validate-tessl-factory-manifest.js"
+    "test:factory-manifest": "node scripts/validate-tessl-factory-manifest.js",
+    "test:runtime-harness": "bash -n .tessl/cloud-launch-setup.sh && bash -n runtime/run-local.sh && node --check runtime/loopback-listen.js && node --check runtime/check-core-todo.js && node --check runtime/test-loopback-listen.js && node runtime/test-loopback-listen.js"
   },
   "dependencies": {
     "adm-zip": "0.4.7",
