@@ -14,7 +14,8 @@ echo "[goof setup] build browser bundle"
 npm run build
 
 echo "[goof setup] install pinned Semgrep OSS CLI with uv"
-uv tool install --force --python python3.12 semgrep==1.92.0
+# Semgrep 1.92 instrumentation imports pkg_resources, removed from setuptools 81.
+uv tool install --force --python python3.12 --with setuptools==80.9.0 semgrep==1.92.0
 mkdir -p "$HOME/.local/bin"
 if ! command -v semgrep >/dev/null 2>&1 && [ -x "$HOME/.local/bin/semgrep" ]; then
   echo "[goof setup] semgrep installed at $HOME/.local/bin/semgrep"
