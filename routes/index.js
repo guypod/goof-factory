@@ -8,7 +8,7 @@ var ms = require('ms');
 var streamBuffers = require('stream-buffers');
 var readline = require('readline');
 var moment = require('moment');
-var exec = require('child_process').exec;
+var childProcess = require('child_process');
 var validator = require('validator');
 
 // zip-slip
@@ -162,6 +162,46 @@ function parse(todo) {
   return t;
 }
 
+var IDENTIFY_TIMEOUT_MS = 10000;
+var IDENTIFY_MAX_BUFFER = 1024 * 1024;
+
+// Returns the URL text unchanged when it is a single http(s) URL, else null.
+// The text is passed to identify as data, so percent-encoding is preserved.
+function validImageUrl(url) {
+  if (typeof url !== 'string' || /[\s\x00-\x1f\x7f]/.test(url)) {
+    return null;
+  }
+  try {
+    var parsed = new URL(url);
+  } catch (e) {
+    return null;
+  }
+  if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+    return null;
+  }
+  return url;
+}
+
+function inspectImage(url) {
+  var imageUrl = validImageUrl(url);
+  if (imageUrl === null) {
+    console.log('Skipping image inspection for invalid URL');
+    return;
+  }
+
+  // execFile runs identify directly with an argument vector, never a shell.
+  childProcess.execFile('identify', [imageUrl], {
+    shell: false,
+    timeout: IDENTIFY_TIMEOUT_MS,
+    killSignal: 'SIGKILL',
+    maxBuffer: IDENTIFY_MAX_BUFFER,
+  }, function (err, stdout, stderr) {
+    if (err) {
+      console.log('Error (' + err.message + '):' + stderr);
+    }
+  });
+}
+
 exports.create = function (req, res, next) {
   // console.log('req.body: ' + JSON.stringify(req.body));
 
@@ -171,12 +211,7 @@ exports.create = function (req, res, next) {
     var url = item.match(imgRegex)[1];
     console.log('found img: ' + url);
 
-    exec('identify ' + url, function (err, stdout, stderr) {
-      console.log(err);
-      if (err !== null) {
-        console.log('Error (' + err + '):' + stderr);
-      }
-    });
+    inspectImage(url);
 
   } else {
     item = parse(item);
