@@ -1,0 +1,22 @@
+rules:
+  - id: goof-request-controlled-identify-exec
+    mode: taint
+    languages:
+      - javascript
+    severity: ERROR
+    message: Request-controlled todo content can reach child_process.exec through ImageMagick identify. Fix the argument boundary and keep before/after scan evidence plus regression coverage.
+    metadata:
+      category: security
+      technology:
+        - express
+        - nodejs
+      remediation_ticket: remove-request-controlled-shell-interpolation-from-todo-image-inspection
+    pattern-sources:
+      - pattern: req.body.content
+    pattern-sinks:
+      - patterns:
+          - pattern: exec('identify ' + $URL, ...)
+          - pattern-inside: |
+              exports.create = function (req, res, next) {
+                ...
+              }
