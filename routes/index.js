@@ -345,11 +345,13 @@ exports.import = function (req, res, next) {
 
 exports.about_new = function (req, res, next) {
   console.log(JSON.stringify(req.query));
-  return res.render("about_new.dust",
+  return res.render("about_new.hbs",
     {
+      layout: false,
       title: 'Patch TODO List',
       subhead: 'Vulnerabilities at their best',
-      device: req.query.device
+      device: req.query.device,
+      isDesktop: req.query.device === 'Desktop'
     });
 };
 
