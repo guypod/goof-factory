@@ -16,11 +16,11 @@ Review changes that affect repository automation, factory configuration, GitHub 
 
 ## Method
 
-Start from the changed automation, workflow, environment, or instruction. Follow what event can start it, whose identity can start it, what repository and branch it can write, what text it reads from outside contributors, and whether it can deploy or expose the vulnerable app.
+Start from the changed automation, workflow, environment, or instruction. Follow what event can start it, whose identity can start it, what repository it can affect, what branch or ref it can write when the event carries one, what text it reads from outside contributors, and whether it can deploy or expose the vulnerable app.
 
 ## Threshold
 
-Report a change when automation can run from arbitrary external comment text, when a trigger lacks exact repository or same-repository branch constraints, when permissions or secrets broaden beyond this repo's factory/remediation purpose, when scan failures are reported as clean, or when the vulnerable app is intentionally exposed beyond local demo use.
+Report a change when automation can run from arbitrary external comment text, when a trigger lacks exact repository or actor constraints, when a branch-bearing trigger lacks same-repository branch or ref constraints, when write-capable automation lacks explicit write-target constraints, when permissions or secrets broaden beyond this repo's factory/remediation purpose, when scan failures are reported as clean, or when the vulnerable app is intentionally exposed beyond local demo use.
 
 Do not report normal repository-bound read access needed by a scanner or reviewer, a repository-bound pull-request permission used only to create fix PRs, or local-only instructions for disposable demo data.
 

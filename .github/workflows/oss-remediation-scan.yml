@@ -1,53 +1,58 @@
-name: OSS remediation scan
-
-on:
-  workflow_dispatch:
-  schedule:
-    - cron: '17 8 * * *'
-
-permissions:
-  contents: read
-
-jobs:
-  semgrep:
-    name: Semgrep OSS taint baseline
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    steps:
-      - name: Checkout
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-      - name: Install pinned Semgrep OSS CLI
-        run: |
-          python3 -m venv .semgrep-venv
-          .semgrep-venv/bin/python -m pip install setuptools==80.9.0 semgrep==1.92.0
-          .semgrep-venv/bin/semgrep --disable-version-check --version
-      - name: Run Semgrep JSON evidence
-        id: semgrep-json
-        shell: bash
-        run: |
-          set +e
-          .semgrep-venv/bin/semgrep scan --disable-version-check --metrics=off --error --config .semgrep.yml --json --output semgrep-results.json routes app.js mongoose-db.js typeorm-db.js utils.js service public
-          echo "status=$?" >> "$GITHUB_OUTPUT"
-          exit 0
-      - name: Run Semgrep SARIF evidence
-        id: semgrep-sarif
-        shell: bash
-        run: |
-          set +e
-          .semgrep-venv/bin/semgrep scan --disable-version-check --metrics=off --error --config .semgrep.yml --sarif --output semgrep-results.sarif routes app.js mongoose-db.js typeorm-db.js utils.js service public
-          echo "status=$?" >> "$GITHUB_OUTPUT"
-          exit 0
-      - name: Upload scan artifacts
-        if: always()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
-        with:
-          name: semgrep-oss-results
-          path: |
-            semgrep-results.json
-            semgrep-results.sarif
-          if-no-files-found: error
-      - name: Fail when Semgrep found issues or failed
-        if: steps.semgrep-json.outputs.status != '0' || steps.semgrep-sarif.outputs.status != '0'
-        run: |
-          echo "Semgrep did not return a clean status. Inspect semgrep-oss-results before treating the scan as clean."
-          exit 1
+{
+  "name": "OSS remediation scan",
+  "on": {
+    "workflow_dispatch": {},
+    "schedule": [
+      {
+        "cron": "17 8 * * *"
+      }
+    ]
+  },
+  "permissions": {
+    "contents": "read"
+  },
+  "jobs": {
+    "semgrep": {
+      "name": "Semgrep OSS taint baseline",
+      "runs-on": "ubuntu-latest",
+      "timeout-minutes": 15,
+      "steps": [
+        {
+          "name": "Checkout",
+          "uses": "actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683"
+        },
+        {
+          "name": "Install pinned Semgrep OSS CLI",
+          "run": "python3 -m venv .semgrep-venv\n.semgrep-venv/bin/python -m pip install setuptools==80.9.0 semgrep==1.92.0\n.semgrep-venv/bin/semgrep --disable-version-check --version\n"
+        },
+        {
+          "name": "Run Semgrep JSON evidence",
+          "id": "semgrep-json",
+          "shell": "bash",
+          "run": "set +e\n.semgrep-venv/bin/semgrep scan --disable-version-check --metrics=off --error --config .semgrep.yml --json --output semgrep-results.json routes app.js mongoose-db.js typeorm-db.js utils.js service public\necho \"status=$?\" >> \"$GITHUB_OUTPUT\"\nexit 0\n"
+        },
+        {
+          "name": "Run Semgrep SARIF evidence",
+          "id": "semgrep-sarif",
+          "shell": "bash",
+          "run": "set +e\n.semgrep-venv/bin/semgrep scan --disable-version-check --metrics=off --error --config .semgrep.yml --sarif --output semgrep-results.sarif routes app.js mongoose-db.js typeorm-db.js utils.js service public\necho \"status=$?\" >> \"$GITHUB_OUTPUT\"\nexit 0\n"
+        },
+        {
+          "name": "Upload scan artifacts",
+          "if": "always()",
+          "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+          "with": {
+            "name": "semgrep-oss-results",
+            "path": "semgrep-results.json\nsemgrep-results.sarif\n",
+            "if-no-files-found": "error"
+          }
+        },
+        {
+          "name": "Fail when Semgrep found issues or failed",
+          "if": "steps.semgrep-json.outputs.status != '0' || steps.semgrep-sarif.outputs.status != '0'",
+          "run": "echo \"Semgrep did not return a clean status. Inspect semgrep-oss-results before treating the scan as clean.\"\nexit 1\n"
+        }
+      ]
+    }
+  }
+}
