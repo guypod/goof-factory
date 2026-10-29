@@ -34,3 +34,5 @@ jobs:
         run: npm run test:todo-image-inspection
       - name: Run st static traversal regression test
         run: npm run test:st-static-traversal
+      - name: Run Dust template rendering and compiler regression test
+        run: npm run test:dust-template-rendering
