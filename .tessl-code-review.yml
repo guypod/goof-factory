@@ -1,0 +1,43 @@
+schemaVersion: 1
+requestChangesAt: major
+effort: low
+ignore:
+  - node_modules/**
+  - .tessl/plugins/**
+  - .agents/**
+  - '**/tessl__*'
+  - '**/tessl__*/**'
+  - sarif.json
+  - example111.json
+lenses:
+  - ref: tessl/code-review@0.5.0#review-correctness-and-data-integrity
+  - ref: tessl/code-review@0.5.0#review-security-and-privacy
+  - ref: tessl/code-review@0.5.0#review-maintainability-and-code-quality
+  - ref: tessl/code-review@0.5.0#review-scale-and-resilience
+  - ref: ./review-lenses/review-remediation-correctness/SKILL.md
+    globs:
+      - app.js
+      - routes/**
+      - views/**
+      - utils.js
+      - tests/**
+      - .semgrep.yml
+  - ref: ./review-lenses/review-dependency-compatibility/SKILL.md
+    globs:
+      - package.json
+      - package-lock.json
+      - public/js/bundle.js
+      - .github/dependabot.yml
+      - .github/workflows/**
+  - ref: ./review-lenses/review-demo-automation-isolation/SKILL.md
+    globs:
+      - tessl.json
+      - .tessl-code-review.yml
+      - .tessl/**
+      - .github/**
+      - review-lenses/**
+      - scripts/**
+      - README.md
+      - deploy-heroku.md
+      - Dockerfile
+      - docker-compose.yml
